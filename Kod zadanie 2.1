@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <algorithm>
+#include <string>
+
+
+using namespace std;
+
+struct Point {
+    double x, y;
+};
+
+bool comparePoints(const Point& a, const Point& b) {
+    if (a.x != b.x) {
+        return a.x < b.x;
+    }
+    return a.y < b.y;
+}
+
+double cross_product(Point p1, Point p2, Point p3) {
+    return (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+}
+
+vector<Point> andrewConvexHull(vector<Point>& points) {
+    int n = points.size();
+
+
+//sortowanie
+    sort(points.begin(), points.end(), comparePoints);
+
+
+    vector<Point> lower_hull;
+    vector<Point> upper_hull;
+
+    // Krok 2: Budowanie dolnego łańćcucha
+    for (const auto& p : points) {
+        // Usuwanie ostatni punkt z otoczki jezeli nowy punkt 'p' nie tworzy skrętu w lewo
+        while (lower_hull.size() >= 2 && cross_product(lower_hull[lower_hull.size() - 2], lower_hull.back(), p) <= 0) {
+            lower_hull.pop_back();
+        }
+        lower_hull.push_back(p);
+    }
+
+    // Krok 3: Budowanie górnego łańcucha
+    for (int i = n - 1; i >= 0; --i) {
+        Point p = points[i];
+
+        while (upper_hull.size() >= 2 && cross_product(upper_hull[upper_hull.size() - 2], upper_hull.back(), p) <= 0) {
+            upper_hull.pop_back();
+        }
+        upper_hull.push_back(p);
+    }
+
+   vector<Point> convex_hull = lower_hull;
+    for (size_t i = 1; i < upper_hull.size() - 1; ++i) {
+        convex_hull.push_back(upper_hull[i]);
+    }
+
+    return convex_hull;
+}
+
+int main() {
+
+    ifstream file("plikk.txt");
+
+    int n;
+    file >> n;
+
+
+    vector<Point> points(n);
+    for (int i = 0; i < n; ++i) {
+        file >> points[i].x >> points[i].y;
+    }
+
+    file.close();
+
+    vector<Point> convexHullPoints = andrewConvexHull(points);
+
+
+    cout << "Punkty tworzace najmniejszy podzbior :" << endl;
+    for (const auto& p : convexHullPoints) {
+        cout << "(" << p.x << ", " << p.y << ")" << endl;
+    }
+
+    cout << "\nLiczba punktow w otoczce: " << convexHullPoints.size() << endl;
+
+    return 0;
+}

@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <fstream>
+
+
+using namespace std;
+struct Point {
+    double x, y;
+};
+//funkcja wyliczająca odległosc
+double policz(Point p1, Point p2) {
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+}
+
+int main() {
+//operacje na pliku tekstowym z punktami, zaczytanie punktów
+    ifstream file("plikk.txt");
+    int n;
+    file >> n;
+
+    vector<Point> punkt(n);
+    for (int i = 0; i < n; ++i) {
+        file >> punkt[i].x >> punkt[i].y;
+    }
+    file.close();
+
+    double najmniejszy = numeric_limits<double>::max();
+    Point najlepszy1, najlepszy2;
+
+//pętla przechodząca przez punkty
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+
+            double wynik = policz(punkt[i], punkt[j]);
+
+            // porównywanie obecnego wyliczenia z poprzednim najmniejszym, jeżeli obecne jest mniejsze to zapisze do najmniejszej
+            if (wynik < najmniejszy) {
+                najmniejszy = wynik;
+                najlepszy1 = punkt[i];
+                najlepszy2 = punkt[j];
+            }
+        }
+    }
+// wyświetlenie wyników
+    cout << "Punkt 1: (" << najlepszy1.x << ", " << najlepszy1.y << ")\n";
+    cout << "Punkt 2: (" << najlepszy2.x << ", " << najlepszy2.y << ")\n";
+    cout << "d szukane: " << najmniejszy << endl;
+
+    return 0;
+}
